@@ -1,0 +1,56 @@
+-- how many pizzas were ordered
+select count(*) As number_pizza_orders
+from customer_orders_temp; 
+
+-- How many unique customer orders were made
+select count(distinct(order_id)) as unique_order_number
+from customer_orders_temp;
+
+-- How many succesful orders were delivered by each runner
+select * from runner_orders_temp;
+select runner_id, count(order_id) As orders_delivered 
+from runner_orders_temp
+where distance != 0
+group by runner_id ;
+
+-- How many Vegetarian and Meatlovers were ordered by each customer
+SELECT 
+    c.customer_id, p.pizza_name, count(*) As pizza_count
+    from customer_orders_temp as c
+    join pizza_names as p 
+    on c.pizza_id = p.pizza_id 
+    group by customer_id, pizza_name
+    order by pizza_count desc;
+-- What was the maximum number of pizzas delivered in a single order
+select order_id, count(*) as number_of_pizzas
+from customer_orders_temp
+group by order_id
+order by number_of_pizzas desc
+limit 1;
+-- For each customer, how many delivered pizzas had at least 1 change and how many had no changes
+select customer_id, count(*) as number_of_pizzas
+from customer_orders_temp
+where exclusions is not NULL or extras is not NULL
+group by customer_id;
+
+-- How many pizzas were delivered that had both exclusions and extras
+select count(*) as Pizzas_with_both_changes
+from customer_orders_temp c
+join runner_orders_temp r on c.order_id = r.order_id
+where r.distance !=0 and exclusions != '' and extras != '';
+
+-- What was the total volume of pizzas ordered for each hour of the day
+SELECT HOUR(order_time) AS hour_of_day,
+       COUNT(order_id) AS number_of_pizzas
+FROM customer_orders_temp
+GROUP BY hour_of_day;
+
+-- What was the volume of orders for each day of the week
+select day(order_time) as date_of_order, 
+count(order_id) as number_of_pizzas
+from customer_orders_temp
+group by date_of_order;
+
+
+
+
