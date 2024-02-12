@@ -1,0 +1,78 @@
+-- How many runners signed up for each 1 week period? (i.e. week starts 2021-01-01)
+use pizza_runner;
+select count(*) , EXTRACT(WEEK from registration_date) as every_week
+from runners
+group by every_week ;
+select * from runners;
+
+-- What was the average time in minutes it took for each runner to arrive at the Pizza Runner HQ to pickup the order?
+select r.runner_id,
+Round(avg(timestampdiff(minute, c.order_time, r.pickup_time)),2) as 'avg_pickup_time'
+from runner_orders r
+join Customer_orders c on r.order_id = c.order_id
+where r.pickup_time is NOT NULL and r.cancellation IS Null 
+group by r.runner_id;
+
+-- Is there any relationship between the number of pizzas and how long the order takes to prepare?
+with pizza_prep_time as
+(
+select count(*) over(partition by c.order_id) as number_of_pizzas,
+timestampdiff(minute,order_time,pickup_time) as Time_taken 
+from runner_orders r 
+join customer_orders c on  r.order_id = c.order_id
+where cancellation is null
+)
+select number_of_pizzas, round(avg(Time_taken),0) as avg_time_taken
+from pizza_prep_time
+group by number_of_pizzas
+order by number_of_pizzas;
+
+-- What was the average distance travelled for each customer?
+SELECT 
+    customerorders.customer_id, ROUND(AVG(rt.distance), 0) AS 'avg_distance'
+FROM runner_orders_temp rt
+JOIN 
+    (SELECT DISTINCT 
+        ct.order_id, 
+        ct.customer_id 
+     FROM 
+        customer_orders_temp ct 
+    ) AS customerorders 
+ON 
+    rt.order_id = customerorders.order_id
+    WHERE rt.cancellation = '' 
+GROUP BY customerorders.customer_id;
+    
+    select * from customer_orders_temp;
+
+-- What was the difference between the longest and shortest delivery times for all orders?
+SELECT 
+    MAX(rt.duration) AS max_time, 
+    MIN(rt.duration) AS min_time, 
+    MAX(rt.duration) - MIN(rt.duration) AS difference_time_mins
+FROM 
+    runner_orders_temp rt 
+JOIN 
+    customer_orders_temp ct ON rt.order_id = ct.order_id
+    where rt.cancellation ='';
+
+-- What was the average speed for each runner for each delivery and do you notice any trend for these values?
+select DATE_FORMAT(rt.pickup_time, '%Y-%m-%d %H:%i:%s') as time_of_day, ct.order_id, rt.runner_id, 
+round((AVG(distance*60/duration)),2) as Avg_speed_in_kmph
+from runner_orders_temp rt
+join customer_orders_temp ct on rt.order_id = ct.order_id
+where cancellation = ''
+group by ct.order_id, rt.runner_id, time_of_day;
+
+-- successful delivery percentage?
+-- successful delivery percentage?
+with succ_delevered as 
+(
+select runner_id, sum(case when distance is not null then 1 else 0 end) as succesfully_delevered_perc, 
+count(order_id) as all_orders
+from runner_orders_temp
+group by runner_id 
+)
+select runner_id, round(((succesfully_delevered_perc/all_orders)),0) as delevered_Perc
+from succ_delevered
+order by runner_id;
