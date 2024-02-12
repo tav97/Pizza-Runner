@@ -1,0 +1,70 @@
+-- ====== ingredient Optimization
+-- What are the standard ingredients for each pizza?
+select pizza_name, group_concat(topping_name separator ', ') as 'standard_ingredient'
+from pizza_recipes R 
+join pizza_toppings T on R.toppings = T.topping_id 
+join pizza_names using(pizza_id)
+group by 1;
+
+-- What was the most commonly added extra?
+SELECT topping_name AS most_common_extra,
+    COUNT(*) AS extra_count
+FROM customer_orders
+JOIN pizza_toppings ON FIND_IN_SET(topping_id, extras)
+WHERE extras != 'None'
+GROUP BY 1
+ORDER BY extra_count DESC
+LIMIT 1;
+
+-- Most common Exclusion
+SELECT topping_name AS most_common_exclusion,
+    COUNT(*) AS exclusion_count
+FROM customer_orders
+JOIN pizza_toppings ON FIND_IN_SET(topping_id, exclusions)
+WHERE exclusions != 'None'
+GROUP BY 1
+ORDER BY exclusion_count DESC
+LIMIT 1;
+
+-- Most common Extra
+SELECT topping_name AS most_common_extra,
+    COUNT(*) AS extras_count
+FROM customer_orders
+JOIN pizza_toppings ON FIND_IN_SET(topping_id, extras)
+WHERE extras != 'None'
+GROUP BY 1
+ORDER BY extras_count DESC
+LIMIT 1;
+-- If a Meat Lovers pizza costs $12 and Vegetarian costs $10 and there were no charges for changes — how much money has Pizza Runner made so far if there are no delivery fees?
+select sum(case 
+when c.pizza_id = 1 then 12
+else 10
+end) as TotalAmount
+from runner_orders as r
+inner join customer_orders as c
+on c.order_id = r.order_id
+where r.distance is not null;
+
+
+
+
+select customer_orders.order_id, customer_orders.pizza_id, pizza_names.pizza_name, customer_orders.exclusions, customer_orders.extras, 
+case
+when customer_orders.pizza_id = 1 and (exclusions is null or exclusions=0) and (extras is null or extras=0) then 'Meat Lovers'
+when customer_orders.pizza_id = 2 and (exclusions is null or exclusions=0) and (extras is null or extras=0) then 'Veg Lovers'
+when customer_orders.pizza_id = 2 and (exclusions =4 ) and (extras is null or extras=0) then 'Veg Lovers - Exclude Cheese'
+when customer_orders.pizza_id = 1 and (exclusions =4 ) and (extras is null or extras=0) then 'Meat Lovers - Exclude Cheese'
+when customer_orders.pizza_id=1 and (exclusions like '%3%' or exclusions =3) and (extras is null or extras=0) then 'Meat Lovers - Exclude Beef'
+when customer_orders.pizza_id =1 and (exclusions is null or exclusions=0) and (extras like '%1%' or extras =1) then 'Meat Lovers - Extra Bacon'
+when customer_orders.pizza_id=1 and (exclusions like '1, 4' ) and (extras like '6, 9') then 'Meat Lovers - Exclude Cheese, Bacon - Extra Mushroom, Peppers'
+when customer_orders.pizza_id=1 and (exclusions like '2, 6' ) and (extras like '1, 4') then 'Meat Lovers - Exclude BBQ Sauce,Mushroom - Extra Bacon, Cheese'
+when customer_orders.pizza_id=1 and (exclusions =4) and (extras like '1, 5') then 'Meat Lovers - Exclude Cheese - Extra Bacon, Chicken'
+end as OrderItem
+from customer_orders
+inner join pizza_names
+on pizza_names.pizza_id = customer_orders.pizza_id;
+
+
+ 
+
+
