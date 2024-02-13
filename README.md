@@ -21,8 +21,7 @@ Additionally, I removed unnecessary spaces in the runner_orders.distance column,
 I also took care of unnecessary spaces in the runner_orders.duration column, where both 'mins' and 'minutes' units were previously present.
 Furthermore, I removed extra spaces in the pizza_recipes.toppings, customer_orders.exclusions, and customer_orders.extras columns.
 
-After conducting Data exploration.
-**Key Insights**
+**KEY INSIGHTS**
 Identified a surge in runner sign-ups during the first week of the month, indicating a concentrated recruitment or engagement strategy during this period.
 Observed variations in pickup time among runners, with Runner 2 exhibiting a longer time and Runner 3 having the quickest delivery time from the store, highlighting operational nuances.
 Found a positive correlation between the number of pizzas ordered and preparation time, with a decrease in time taken for each pizza as order counts rise, showcasing an efficient preparation process.
