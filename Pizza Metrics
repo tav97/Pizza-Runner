@@ -13,6 +13,18 @@ from runner_orders_temp
 where distance != 0
 group by runner_id ;
 
+-- What was the total volume of pizzas ordered for each hour of the day?
+select hour(order_time) as hourly_pizza_order, count(order_id) as number_of_pizzas
+from customer_orders_temp
+group by 1
+order by 1;
+
+-- What was the volume of orders for each day of the week?
+select dayname(order_time) as order_per_day, count(order_id)
+from customer_orders_temp
+group by 1
+order by 1;
+
 -- How many Vegetarian and Meatlovers were ordered by each customer
 SELECT 
     c.customer_id, p.pizza_name, count(*) As pizza_count
