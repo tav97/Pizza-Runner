@@ -1,5 +1,5 @@
 # Pizza-Runner
-Problem Statement: the task is to perform exploratory data analysis on the Pizza House Dataset to help Danny optimize his newly established pizza business. The data provided in the dataset required a thorough cleaning before any analysis could be performed.
+**PROBLEM STATEMENT**: the task is to perform exploratory data analysis on the Pizza House Dataset to help Danny optimize his newly established pizza business. The data provided in the dataset required a thorough cleaning before any analysis could be performed.
 
 To clean the data, I first created a new table, Customer_order_temp, from the customer_orders table and removed any null values from the exclusions, extras, and order_time columns. I then repeated the process for the runner_orders table, by creating temp table  also converting the data types of the distance, duration, and cancellation columns to decimal, int, and datetime, respectively. 
 
